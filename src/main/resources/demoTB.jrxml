@@ -3,9 +3,10 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="demoTB" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="6e75e3f5-0c76-4459-9489-39422454a7dd">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Oracle JDBC"/>
+	<parameter name="condition" class="java.lang.Integer" isForPrompting="false"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT *
-FROM "OE_ORDER_HEADERS_ALL"]]>
+FROM "OE_ORDER_HEADERS_ALL" WHERE ORDER_NUMBER = $P{condition}]]>
 	</queryString>
 	<field name="HEADER_ID" class="java.math.BigDecimal">
 		<property name="com.jaspersoft.studio.field.label" value="HEADER_ID"/>
