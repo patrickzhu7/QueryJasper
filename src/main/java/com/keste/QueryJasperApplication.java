@@ -21,7 +21,7 @@ public class QueryJasperApplication {
         reportGenerator.compileReport();
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("condition", "1");
+        parameters.put("condition", 1);
 
         reportGenerator.setParameters(parameters);
         reportGenerator.fillReport();
