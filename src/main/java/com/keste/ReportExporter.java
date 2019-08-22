@@ -4,17 +4,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.sf.jasperreports.engine.JRException;
@@ -54,6 +60,14 @@ public class ReportExporter {
     public void setJasperPrint(JasperPrint jasperPrint) {
         this.jasperPrint = jasperPrint;
     }
+    
+    @RequestMapping(value="/number/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public void postOrderNumber(@PathVariable Integer id) throws IOException {
+    	System.out.println("POST API");
+    	System.out.println(id);
+    	refresh(id);
+    }
 
     @RequestMapping(value="/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_PDF_VALUE)
 	public ResponseEntity<byte[]> getPDF() {
@@ -69,6 +83,30 @@ public class ReportExporter {
 	    System.out.println(this.test == null);
 	    ResponseEntity<byte[]> response = new ResponseEntity<>(this.test, headers, HttpStatus.OK);
 	    return response;
+	}
+	
+	public void refresh(Integer orderNumber) throws IOException {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(ReportsConfig.class);
+        ctx.refresh();
+
+        ReportGenerator reportGenerator = ctx.getBean(ReportGenerator.class);
+
+        reportGenerator.setReportFileName("demoTB.jrxml");
+        reportGenerator.compileReport();
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("condition", orderNumber);
+
+        reportGenerator.setParameters(parameters);
+        reportGenerator.fillReport();
+
+        ReportExporter simpleExporter = ctx.getBean(ReportExporter.class);
+        simpleExporter.setJasperPrint(reportGenerator.getJasperPrint());
+
+        simpleExporter.exportToPdf("demoTB.pdf", "Keste");
+        
+        System.out.println("pdf has been refreshed");
 	}
     
     public void exportToPdf(String fileName, String author) throws IOException {
